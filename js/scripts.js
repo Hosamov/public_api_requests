@@ -1,6 +1,10 @@
-const randUserUrl = 'https://randomuser.me/api/?nat=US&results=12';
-const gallery = document.querySelector('.gallery');
+/* Treehouse FSJS Techdegree
+ * Project 5 - Public API Requests
+  */
 
+//----------------------------GLOBAL VARIABLES--------------------------------//
+const randUserUrl = 'https://randomuser.me/api/?nat=US&results=12'; //US info only, limit to 12x results
+const gallery = document.querySelector('.gallery');
 
 //----------------------------------FETCH DATA--------------------------------//
 //async function to return a promise resolved by parsing the body text as JSON
@@ -34,6 +38,7 @@ function phoneNumConverter(num) {
 //async function to gather user data required to be displayed from api
 async function getUserList(url) {
   try {
+    //generate 12 random users pulled from the API in a single request
     const randomUserJSON = await getJSON(url); //get a Promise by calling getJSON()
     //map out data from randomUserJSON in order to use the information
     const profiles = randomUserJSON.results.map(person => {
@@ -51,18 +56,15 @@ async function getUserList(url) {
     return Promise.all(profiles); //return profiles variable
   } catch (error) {
     gallery.innerHTML = `<h1>An error occurred while fetching data.</h1>
-      <h2>Please try again in a moment. If the error persists, please contact the webmaster.</h2>
-      `
+      <h2>Please try again in a moment. If the error persists, please contact the webmaster.</h2>`
   }
 }
 
-//decare an array to store the returned random user data
-const personData = [];
-
 //Function to generate HTML data to div element with id of 'gallery'
 function generateGalleryHTML(data) {
+  const personData = []; //declare an array to store the returned random user data
   data.map(person => {
-    personData.push(person);
+    personData.push(person); //store all the person data in personData array
   });
 
   //Dynamically insert required data for 12 random user cards
@@ -109,12 +111,13 @@ function generateGalleryHTML(data) {
       //Close Modal window button
       const modalCloseBtn = document.getElementById('modal-close-btn');
       modalCloseBtn.addEventListener('click', (e) => {
-        gallery.lastElementChild.remove();
+        gallery.lastElementChild.remove(); //remove it from the screen...
       });
     });
-
   }
 }
+//--------------------------------EXTRA FEATURES------------------------------//
+
 
 //--------------------------------CALL FUNCTIONS------------------------------//
 getUserList(randUserUrl) //1. get the user postData
