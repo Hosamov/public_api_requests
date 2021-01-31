@@ -5,6 +5,7 @@
 //----------------------------GLOBAL VARIABLES--------------------------------//
 const randUserUrl = 'https://randomuser.me/api/?nat=US&results=12'; //US info only, limit to 12x results
 const gallery = document.querySelector('.gallery');
+const searchContainer = document.querySelector('header').children[0].lastElementChild; //target last div (labeled class='search-container') of header element
 
 //----------------------------------FETCH DATA--------------------------------//
 //async function to return a promise resolved by parsing the body text as JSON
@@ -117,7 +118,13 @@ function generateGalleryHTML(data) {
   }
 }
 //--------------------------------EXTRA FEATURES------------------------------//
-
+//Dynamically add
+searchContainer.insertAdjacentHTML('beforeend', `
+  <form action="#" method="get">
+      <input type="search" id="search-input" class="search-input" placeholder="Search...">
+      <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+  </form>
+`);
 
 //--------------------------------CALL FUNCTIONS------------------------------//
 getUserList(randUserUrl) //1. get the user postData
