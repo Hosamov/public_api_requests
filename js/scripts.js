@@ -5,7 +5,9 @@
 //----------------------------GLOBAL VARIABLES--------------------------------//
 const randUserUrl = 'https://randomuser.me/api/?nat=US&results=12'; //US info only, limit to 12x results
 const gallery = document.querySelector('.gallery');
-const searchContainer = document.querySelector('header').children[0].lastElementChild; //target last div (labeled class='search-container') of header element
+const search = document.querySelector('.search-container');
+const personData = []; //declare an array to store the returned random user data
+//const userName = []; //holds all full names of users
 
 //----------------------------------FETCH DATA--------------------------------//
 //async function to return a promise resolved by parsing the body text as JSON
@@ -62,28 +64,34 @@ async function getUserList(url) {
 }
 
 //Function to generate HTML data to div element with id of 'gallery'
-function generateGalleryHTML(data) {
-  const personData = []; //declare an array to store the returned random user data
+function mapData(data) {
   data.map(person => {
     personData.push(person); //store all the person data in personData array
   });
+  generateGalleryHTML(data);
+}
 
+function generateGalleryHTML(data){
+  gallery.innerHTML = '';
   //Dynamically insert required data for 12 random user cards
-  for (let i = 0; i < personData.length; i++) {
+  for (let i = 0; i < data.length; i++) {
     gallery.insertAdjacentHTML('beforeend', `
       <div class="card">
           <div class="card-img-container">
-              <img class="card-img" src="${personData[i].image}" alt="profile picture">
+              <img class="card-img" src="${data[i].image}" alt="profile picture">
           </div>
           <div class="card-info-container">
-              <h3 id="name" class="card-name cap">${personData[i].fullName}</h3>
-              <p class="card-text">${personData[i].email}</p>
-              <p class="card-text cap">${personData[i].loc}</p>
+              <h3 id="name" class="card-name cap">${data[i].fullName}</h3>
+              <p class="card-text">${data[i].email}</p>
+              <p class="card-text cap">${data[i].loc}</p>
           </div>
       </div>
       `);
   }
+  generateCardHTML(data);
+}
 
+function generateCardHTML(data) {
   //target the newly-created children (cards) of gallery class
   const cards = gallery.children;
   //loop through list of cards
@@ -97,14 +105,14 @@ function generateGalleryHTML(data) {
             <div class="modal">
                 <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
                 <div class="modal-info-container">
-                    <img class="modal-img" src="${personData[i].image}" alt="profile picture">
-                    <h3 id="name" class="modal-name cap">name</h3>
-                    <p class="modal-text">${personData[i].email}</p>
-                    <p class="modal-text cap">${personData[i].loc}</p>
+                    <img class="modal-img" src="${data[i].image}" alt="profile picture">
+                    <h3 id="name" class="modal-name cap">${data[i].fullName}</h3>
+                    <p class="modal-text">${data[i].email}</p>
+                    <p class="modal-text cap">${data[i].loc}</p>
                     <hr>
-                    <p class="modal-text">${personData[i].cellNumber}</p>
-                    <p class="modal-text">${personData[i].address}</p>
-                    <p class="modal-text">Birthday: ${personData[i].birthday}</p>
+                    <p class="modal-text">${data[i].cellNumber}</p>
+                    <p class="modal-text">${data[i].address}</p>
+                    <p class="modal-text">Birthday: ${data[i].birthday}</p>
                 </div>
             </div>
         `);
@@ -117,15 +125,44 @@ function generateGalleryHTML(data) {
     });
   }
 }
+
 //--------------------------------EXTRA FEATURES------------------------------//
-//Dynamically add
-searchContainer.insertAdjacentHTML('beforeend', `
-  <form action="#" method="get">
-      <input type="search" id="search-input" class="search-input" placeholder="Search...">
-      <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
-  </form>
-`);
+//Dynamically add search bar to index.html
+function searchList(names) {
+  search.insertAdjacentHTML('beforeend', `
+    <form action="#" method="get">
+        <input type="search" id="search-input" class="search-input" placeholder="Search...">
+        <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+    </form>
+  `);
+    const searchBtn = document.querySelector('.search-submit');
+    searchBtn.addEventListener('click', () => { //target the search button
+      filterNames(names);
+    });
+
+}
+
+function filterNames(names) { //call list parameter
+  const searchInputValue = document.querySelector('#search-input').value.toLowerCase(); //target input id of 'search-input' and convert its value to lower case
+  let filteredList = []; //Create a new array to hold the filtered results, below
+  for (let i = 0; i < personData.length; i++) {
+    //check to see if the full name matches any or all of the search input
+    if (personData[i].fullName.toLowerCase().includes(searchInputValue)) {
+      console.log(personData[i].fullName);
+      filteredList.push(names[i]); //add it to filteredList array
+    }
+  }
+  console.log(filteredList);
+
+  if (filteredList.length === 0) { //Check to see if there are no matches
+    gallery.innerHTML = '<h1>No results found.</h1>'; //let the user know
+  } else {
+    generateGalleryHTML(filteredList);//showPage(filteredList, 1); //otherwise, send filteredList array to the showPage function
+  }
+}
 
 //--------------------------------CALL FUNCTIONS------------------------------//
-getUserList(randUserUrl) //1. get the user postData
-  .then(generateGalleryHTML) //2. Pass the data to generateHTML()
+getUserList(randUserUrl) // get the user postData
+  .then(mapData)          // Pass the data to generateHTML()
+
+searchList(personData); //create search function to search through the list of users
