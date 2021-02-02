@@ -1,6 +1,6 @@
 /* Treehouse FSJS Techdegree
  * Project 5 - Public API Requests
-  */
+ */
 
 //----------------------------GLOBAL VARIABLES--------------------------------//
 const randUserUrl = 'https://randomuser.me/api/?nat=US&results=12'; //US info only, limit to 12x results
@@ -71,7 +71,7 @@ function mapData(data) {
 }
 
 function generateGalleryHTML(data){
-  gallery.innerHTML = ''; //clear the window of any previous cards
+  gallery.innerHTML = ''; //clear the window of any previous cards (start from scratch)
   //Dynamically insert required data for 12 random user cards
   for (let i = 0; i < data.length; i++) {
     gallery.insertAdjacentHTML('beforeend', `
@@ -201,16 +201,15 @@ function filterNames(names) { //call list parameter
   }
 
   if (filteredList.length === 0) { //Check to see if there are no matches
-    gallery.innerHTML = '<h1>No results found.</h1>'; //let the user know
+    gallery.innerHTML = '<h1>No search results found.</h1>'; //let the user know
   } else {
     canToggle = false; //set to false to prevent generateModalHTML() from automatically opening the modal window
     generateGalleryHTML(filteredList);
-
   }
 }
 
 //--------------------------------CALL FUNCTIONS------------------------------//
-getUserList(randUserUrl) // get the user postData
-  .then(mapData)          // Pass the data to generateHTML()
+getUserList(randUserUrl) //get the user postData
+  .then(mapData)         //pass the data to generateHTML()
 
-searchList(personData); //create search function to search through the list of users
+searchList(personData); //add a search bar
