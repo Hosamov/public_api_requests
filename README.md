@@ -13,12 +13,12 @@ A Mock-up Startup Employee Directory FSJS TD Project 5
 2. Modal toggling is available when a modal window is open, allowing the user to effectively cycle through all returned employees in the list.
   - This feature adjusts based on search criteria entered by the user (i.e. if only 3 employees are shown, the modal toggle buttons only allow cycling through the currently-shown list).
 3. Styling Adjustments from original styles.css:
+  - NOTE: Notated which style elements were updated, removed, or added in styles.css.
   - Colors:
-    - Utilized the following color scheme: #2c061f #374045 #d89216 #e1d89f
+    - Utilized the following color scheme: #2c061f #374045 #d89216 #f1c475 #9b6a12
   - Background Color:
     - Adjusted background color to #2c061f (base color in scheme)
   - Font:
     - Adjusted font to 'Roboto Slab': https://fonts.googleapis.com/css2?family=Noto+Sans&family=Roboto+Slab:wght@300&display=swap
   - Box & Text Shadows:
-    - Added box-shadow to all cards: #e1d89f #d89216
-    - Added box-shadow to modal window: #2c061f
+    - Added box-shadow to all cards: #f1c475 #d89216
