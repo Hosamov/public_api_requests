@@ -7,7 +7,6 @@ const randUserUrl = 'https://randomuser.me/api/?nat=US&results=12'; //US info on
 const gallery = document.querySelector('.gallery');
 const search = document.querySelector('.search-container');
 const personData = []; //declare an array to store the returned random user data
-//const userName = []; //holds all full names of users
 
 //----------------------------------FETCH DATA--------------------------------//
 //async function to return a promise resolved by parsing the body text as JSON
@@ -21,7 +20,6 @@ async function getJSON(url) {
 }
 
 //-------------------------------HELPER FUNCTIONS-----------------------------//
-
 //Convert the date to the proper format(MM/DD/YYYY)
 function dateConverter(date) {
   const newDate = new Date(date);
@@ -72,7 +70,7 @@ function mapData(data) {
 }
 
 function generateGalleryHTML(data){
-  gallery.innerHTML = '';
+  gallery.innerHTML = ''; //clear the window of any previous cards
   //Dynamically insert required data for 12 random user cards
   for (let i = 0; i < data.length; i++) {
     gallery.insertAdjacentHTML('beforeend', `
@@ -88,15 +86,15 @@ function generateGalleryHTML(data){
       </div>
       `);
   }
-  generateCardHTML(data);
+  generateModalHTML(data);
 }
 
-function generateCardHTML(data) {
+function generateModalHTML(data) {
   //target the newly-created children (cards) of gallery class
   const cards = gallery.children;
   //loop through list of cards
   for (let i = 0; i < cards.length; i++) {
-    const card = cards[i]; //declare var for applicable card in order to 'click'
+    let card = cards[i]; //declare var for applicable card in order to 'click'
     //event listener for the selected card:
     card.addEventListener('click', () => {
       //Dynamically insert the required information for selected modal object
@@ -115,11 +113,13 @@ function generateCardHTML(data) {
                     <p class="modal-text">Birthday: ${data[i].birthday}</p>
                 </div>
             </div>
-        `);
+      `);
+
+      addModalToggle(data, i);
 
       //Close Modal window button
       const modalCloseBtn = document.getElementById('modal-close-btn');
-      modalCloseBtn.addEventListener('click', (e) => {
+      modalCloseBtn.addEventListener('click', () => {
         gallery.lastElementChild.remove(); //remove it from the screen...
       });
     });
@@ -136,10 +136,15 @@ function searchList(names) {
     </form>
   `);
     const searchBtn = document.querySelector('.search-submit');
-    searchBtn.addEventListener('click', () => { //target the search button
+    const searchBar = document.querySelector('.search-input');
+    //search using finder button
+    searchBtn.addEventListener('click', (e) => { //target the search button
       filterNames(names);
     });
-
+    //Live/active search using 'keyup' event
+    searchBar.addEventListener('keyup', (e) => { //target the search button
+      filterNames(names);
+    });
 }
 
 function filterNames(names) { //call list parameter
@@ -147,18 +152,44 @@ function filterNames(names) { //call list parameter
   let filteredList = []; //Create a new array to hold the filtered results, below
   for (let i = 0; i < personData.length; i++) {
     //check to see if the full name matches any or all of the search input
-    if (personData[i].fullName.toLowerCase().includes(searchInputValue)) {
-      console.log(personData[i].fullName);
-      filteredList.push(names[i]); //add it to filteredList array
+    if (personData[i].fullName.toLowerCase().includes(searchInputValue)) { //convert name to lowerCase and check against search input value
+      filteredList.push(names[i]); //if it's a "match" add it to filteredList array
     }
   }
-  console.log(filteredList);
 
   if (filteredList.length === 0) { //Check to see if there are no matches
     gallery.innerHTML = '<h1>No results found.</h1>'; //let the user know
   } else {
-    generateGalleryHTML(filteredList);//showPage(filteredList, 1); //otherwise, send filteredList array to the showPage function
+    generateGalleryHTML(filteredList);
   }
+}
+
+//modal toggle
+function addModalToggle(data, index) {
+  //TODO: Figure out how to harness the index of data and feed it to the generateModalHTML() function for switching cards
+  // data.next;
+  // console.log(data.next);
+  // console.log(index)
+
+  //extra feature - cycle between cards
+  const modal = document.querySelector('.modal');
+  modal.insertAdjacentHTML('beforeend', `
+      <div class="modal-btn-container">
+          <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+          <button type="button" id="modal-next" class="modal-next btn">Next</button>
+      </div>
+  </div>
+  `);
+  const modalPrev = document.getElementById('modal-prev');
+  const modalNext = document.getElementById('modal-next');
+  modalPrev.addEventListener('click', () => {
+    console.log('Clicked Previous');
+    gallery.lastElementChild.remove(); //remove it from the screen...
+  });
+  modalNext.addEventListener('click', () => {
+    console.log('Clicked Next');
+    gallery.lastElementChild.remove(); //remove it from the screen...
+  });
 }
 
 //--------------------------------CALL FUNCTIONS------------------------------//
