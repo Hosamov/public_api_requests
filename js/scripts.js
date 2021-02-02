@@ -7,6 +7,7 @@ const randUserUrl = 'https://randomuser.me/api/?nat=US&results=12'; //US info on
 const gallery = document.querySelector('.gallery');
 const search = document.querySelector('.search-container');
 const personData = []; //declare an array to store the returned random user data
+let canToggle = false; //declare var to track determine when modal window can toggle
 
 //----------------------------------FETCH DATA--------------------------------//
 //async function to return a promise resolved by parsing the body text as JSON
@@ -86,48 +87,90 @@ function generateGalleryHTML(data){
       </div>
       `);
   }
-  generateModalHTML(data);
+  generateModalHTML(data); //initial call to generateModalHTML
 }
 
-function generateModalHTML(data) {
+function generateModalHTML(data, index) {
+  //console.log(index);
+  if(index === undefined) index = 0; //if no index argument, set index to 0
   //target the newly-created children (cards) of gallery class
   const cards = gallery.children;
   //loop through list of cards
-  for (let i = 0; i < cards.length; i++) {
-    let card = cards[i]; //declare var for applicable card in order to 'click'
-    //event listener for the selected card:
-    card.addEventListener('click', () => {
-      //Dynamically insert the required information for selected modal object
-      gallery.insertAdjacentHTML('beforeend', `
-        <div class="modal-container">
-            <div class="modal">
-                <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-                <div class="modal-info-container">
-                    <img class="modal-img" src="${data[i].image}" alt="profile picture">
-                    <h3 id="name" class="modal-name cap">${data[i].fullName}</h3>
-                    <p class="modal-text">${data[i].email}</p>
-                    <p class="modal-text cap">${data[i].loc}</p>
-                    <hr>
-                    <p class="modal-text">${data[i].cellNumber}</p>
-                    <p class="modal-text">${data[i].address}</p>
-                    <p class="modal-text">Birthday: ${data[i].birthday}</p>
-                </div>
-            </div>
-      `);
-
-      addModalToggle(data, i);
-
-      //Close Modal window button
-      const modalCloseBtn = document.getElementById('modal-close-btn');
-      modalCloseBtn.addEventListener('click', () => {
-        gallery.lastElementChild.remove(); //remove it from the screen...
+  if(index === 0 && !canToggle) {
+    for (let i = index; i < cards.length; i++) {
+      let card = cards[i]; //declare var for applicable card in order to 'click'
+      //event listener for the selected card:
+      card.addEventListener('click', () => {
+        addModalData(data, i); //Dynamically insert modal HTML
       });
-    });
+    }
+  } else {
+    if(index < 0) index = (cards.length - 2); //cards will equal 13 due to utilizing insertAdjacentHTML
+    if(index > cards.length -2) index = 0; //recycle back through shown cards when at max index val
+    gallery.lastElementChild.remove(); //remove the previous card
+    addModalData(data, index); //add the new card to the modal window
   }
 }
 
+function addModalData(data, index) {
+    //Dynamically insert the required information for selected modal object
+    gallery.insertAdjacentHTML('beforeend', `
+      <div class="modal-container">
+          <div class="modal">
+              <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+              <div class="modal-info-container">
+                  <img class="modal-img" src="${data[index].image}" alt="profile picture">
+                  <h3 id="name" class="modal-name cap">${data[index].fullName}</h3>
+                  <p class="modal-text">${data[index].email}</p>
+                  <p class="modal-text cap">${data[index].loc}</p>
+                  <hr>
+                  <p class="modal-text">${data[index].cellNumber}</p>
+                  <p class="modal-text">${data[index].address}</p>
+                  <p class="modal-text">Birthday: ${data[index].birthday}</p>
+              </div>
+          </div>
+    `);
+
+    addModalToggle(data, index); //declared in Extra features section
+
+    //Close Modal window button
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    modalCloseBtn.addEventListener('click', () => {
+      gallery.lastElementChild.remove(); //remove it from the screen...
+    });
+  //});
+}
+
 //--------------------------------EXTRA FEATURES------------------------------//
-//Dynamically add search bar to index.html
+//modal toggle
+function addModalToggle(data, index) {
+  canToggle = true;
+  //const prev = index--;
+  //const next = index++;
+
+  //dynamically add HTML for prev and next buttons to modal window
+  const modal = document.querySelector('.modal');
+  modal.insertAdjacentHTML('beforeend', `
+      <div class="modal-btn-container">
+          <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+          <button type="button" id="modal-next" class="modal-next btn">Next</button>
+      </div>
+  </div>
+  `);
+
+  const modalPrev = document.getElementById('modal-prev');
+  const modalNext = document.getElementById('modal-next');
+  modalPrev.addEventListener('click', () => {
+    index--;
+    generateModalHTML(data, index--); //show previous card
+  });
+  modalNext.addEventListener('click', () => {
+    index++;
+    generateModalHTML(data, index++); //show next card
+  });
+}
+
+//Function to dynamically add search bar to index.html
 function searchList(names) {
   search.insertAdjacentHTML('beforeend', `
     <form action="#" method="get">
@@ -137,12 +180,12 @@ function searchList(names) {
   `);
     const searchBtn = document.querySelector('.search-submit');
     const searchBar = document.querySelector('.search-input');
-    //search using finder button
+    //search using click handler on search button element
     searchBtn.addEventListener('click', (e) => { //target the search button
       filterNames(names);
     });
-    //Live/active search using 'keyup' event
-    searchBar.addEventListener('keyup', (e) => { //target the search button
+    //Live/active search using 'keyup' event handler
+    searchBar.addEventListener('keyup', (e) => { //target the search bar
       filterNames(names);
     });
 }
@@ -160,36 +203,10 @@ function filterNames(names) { //call list parameter
   if (filteredList.length === 0) { //Check to see if there are no matches
     gallery.innerHTML = '<h1>No results found.</h1>'; //let the user know
   } else {
+    canToggle = false; //set to false to prevent generateModalHTML() from automatically opening the modal window
     generateGalleryHTML(filteredList);
+
   }
-}
-
-//modal toggle
-function addModalToggle(data, index) {
-  //TODO: Figure out how to harness the index of data and feed it to the generateModalHTML() function for switching cards
-  // data.next;
-  // console.log(data.next);
-  // console.log(index)
-
-  //extra feature - cycle between cards
-  const modal = document.querySelector('.modal');
-  modal.insertAdjacentHTML('beforeend', `
-      <div class="modal-btn-container">
-          <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
-          <button type="button" id="modal-next" class="modal-next btn">Next</button>
-      </div>
-  </div>
-  `);
-  const modalPrev = document.getElementById('modal-prev');
-  const modalNext = document.getElementById('modal-next');
-  modalPrev.addEventListener('click', () => {
-    console.log('Clicked Previous');
-    gallery.lastElementChild.remove(); //remove it from the screen...
-  });
-  modalNext.addEventListener('click', () => {
-    console.log('Clicked Next');
-    gallery.lastElementChild.remove(); //remove it from the screen...
-  });
 }
 
 //--------------------------------CALL FUNCTIONS------------------------------//
